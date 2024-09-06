@@ -6,8 +6,10 @@
  * and handle any errors that may occur during sensor communication.
  *
  * Attention:
- * The sensors are not factory-calibrated.
- * You will need to calibrate them yourself using the adjustment potentiometer on the board.
+ * - The sensors are not factory-calibrated.
+ * - You will need to calibrate them yourself using the adjustment potentiometer on the board.
+ * - A voltmeter is required for calibration; the more accurate the voltmeter, the better.
+ * - An oscilloscope can also be used for more precise calibration and analysis.
  *
  * Dependencies:
  * - ESP-IDF (Espressif IoT Development Framework)
@@ -56,16 +58,25 @@
 // without saturating the ADC and helps in achieving more accurate voltage measurements.
 #define ADC_ATTEN_DB  ADC_ATTEN_DB_12
 
-#define ADC_UNIT      ADC_UNIT_1
-#define DEFAULT_VREF  1100
+// ADC unit to be used for voltage measurements (ADC Unit 1)
+#define ADC_UNIT ADC_UNIT_1
 
-// I2S
-// Sampling frequency to collect voltage data
-#define SAMPLING_FREQ 25000
-// DMA maximum buffer length
-#define DMA_BUFFER_LEN 1024
+// Default reference voltage (Vref) for ADC calibration, in millivolts (mV)
+#define DEFAULT_VREF 1100  // in mV
+
+// I2S Configuration
+// Sampling frequency for collecting voltage data from the ADC using I2S
+#define SAMPLING_FREQ 25000  // in Hz
+
+// Maximum length of the DMA buffer for I2S data transfer
+#define DMA_BUFFER_LEN 1024  // in bytes
+
+// I2S bit resolution for each sample (16-bit per sample)
 #define I2S_BITS_PER_SAMPLE I2S_BITS_PER_SAMPLE_16BIT
+
+// I2S peripheral number to be used for ADC data acquisition
 #define ADC_I2S_NUM I2S_NUM_0
+
 // Size of the internal buffer for I2S ADC readings. The DMA buffer is initially sized for 8-bit data,
 // but since we are using a 12-bit ADC, we need to repack the 1-byte DMA buffer into a 2-byte buffer.
 // Therefore, we divide the DMA buffer length by the size of a uint16_t to accommodate the 12-bit ADC data
@@ -78,17 +89,22 @@
  */
 
 /**
- * @brief Initializes the ADC for the specified channel.
+ * @brief Initializes the ADC for the specified ADC channel for the ZMPT101B voltage sensor.
  *
- * @param channel ADC channel to configure.
- * @return esp_err_t Error code indicating success or failure.
+ * This function configures the ADC to read data from the specified channel where the ZMPT101B sensor is connected.
+ *
+ * @param adc_channel ADC channel to configure for the ZMPT101B sensor.
+ * @return esp_err_t Error code indicating success (ESP_OK) or failure (appropriate ESP-IDF error code).
  */
 esp_err_t zmpt101b_init(adc_channel_t adc_channel);
 
 /**
- * @brief Reads the current voltage from the ZMPT101B sensor.
+ * @brief Reads the RMS voltage from the ZMPT101B sensor.
  *
- * @param adc_channel ADC channel where the sensor is connected.
- * @return uint16_t The measured voltage in volts.
+ * This function reads the current RMS voltage from the ZMPT101B sensor connected to the specified ADC channel.
+ *
+ * @param adc_channel ADC channel where the ZMPT101B sensor is connected.
+ * @param rmsVoltage Pointer to a variable where the measured RMS voltage value will be stored.
+ * @return esp_err_t Error code indicating success (ESP_OK) or failure (appropriate ESP-IDF error code).
  */
 esp_err_t zmpt101b_read_voltage(adc_channel_t adc_channel, uint16_t *rmsVoltage);

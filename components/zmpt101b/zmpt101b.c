@@ -65,7 +65,7 @@ bool median_filter_in_place(uint16_t *data, size_t length, size_t window_size, u
     return true;
 }
 
-static esp_adc_cal_characteristics_t *adc_chars;
+static esp_adc_cal_characteristics_t *adc_chars = NULL;
 
 static void check_efuse()
 {
@@ -103,7 +103,9 @@ esp_err_t zmpt101b_init(adc_channel_t adc_channel)
     check_efuse();
 
     //Characterize ADC
-    adc_chars = calloc(1, sizeof(esp_adc_cal_characteristics_t));
+    if (NULL==adc_chars){
+        adc_chars = calloc(1, sizeof(esp_adc_cal_characteristics_t));
+    }
     esp_adc_cal_value_t val_type = esp_adc_cal_characterize(ADC_UNIT, ADC_ATTEN_DB, ADC_WIDTH_BIT, DEFAULT_VREF, adc_chars);
     print_char_val_type(val_type);
 
